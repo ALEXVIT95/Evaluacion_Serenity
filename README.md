@@ -10,8 +10,8 @@
 
 ## Technologies Used
 	- Maquina local con el sistema operativo Windows 10
-	- Gradle 8
-	- JDK versión 17 (archivo jdk-17_windows-x64_bin)
+	- Java version "11"
+	- Gradle 7.6.1
 
 
 ## Implementation
@@ -19,7 +19,8 @@
 	- Descomprimir el archivo en el workspace de Spring tool
 	- Abrir una terminal 
 	- Ejecutar el siguiente comando: Gradle clean test
-
+## Execution command
+	- gradlew clean test
 
 ## Flow
 Prueba funcional de un flujo de compra en la pagina de opencart.abstracta.us:

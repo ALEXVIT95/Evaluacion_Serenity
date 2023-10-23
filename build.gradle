@@ -1,53 +1,74 @@
-plugins {
-    id "net.serenity-bdd.serenity-gradle-plugin" version "3.4.2"
-    id 'java'
+gradle.startParameter.continueOnFailure = true
+
+allprojects {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven {
+
+            url "https://repo1.maven.org/maven2/"
+        }
+    }
 }
 
-defaultTasks 'clean', 'test', 'aggregate'
+buildscript {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
 
-repositories {
-    mavenCentral()
+    dependencies {
+        classpath "net.serenity-bdd:serenity-gradle-plugin:3.4.1"
+        classpath("net.serenity-bdd:serenity-single-page-report:3.4.2")
+        classpath("org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:4.0.0.2929")
+    }
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: "net.serenity-bdd.serenity-gradle-plugin"
+apply plugin:"org.sonarqube"
 
-ext {
-    slf4jVersion = '1.7.7'
-    serenityCoreVersion = '3.6.12'
-    junitVersion = '5.9.2'
-    assertJVersion = '3.23.1'
-    lombokVersion = '1.18.24'
-    logbackVersion = '1.2.11'
-}
 
 dependencies {
-    testImplementation "net.serenity-bdd:serenity-core:${serenityCoreVersion}",
-            "net.serenity-bdd:serenity-junit5:${serenityCoreVersion}",
-            "net.serenity-bdd:serenity-screenplay:${serenityCoreVersion}",
-            "net.serenity-bdd:serenity-screenplay-webdriver:${serenityCoreVersion}",
-            "org.junit.jupiter:junit-jupiter-api:${junitVersion}",
-            "org.junit.jupiter:junit-jupiter-engine:${junitVersion}",
-            "org.assertj:assertj-core:${assertJVersion}",
-            "org.projectlombok:lombok:${lombokVersion}",
-            "ch.qos.logback:logback-classic:${logbackVersion}",
-            'ch.qos.logback:logback-classic:1.2.3'
 
+    compileOnly 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
+    implementation group: 'org.eclipse.angus', name: 'angus-mail', version: '1.0.0'
+    implementation group: 'org.springframework', name: 'spring-core', version: '5.3.20'
+    implementation "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
+    implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+    implementation "org.slf4j:slf4j-api:${slf4jVersion}"
+    implementation "ch.qos.logback:logback-classic:${logbackVersion}"
+    implementation "net.serenity-bdd:serenity-model:${serenityCoreVersion}"
+    implementation "net.serenity-bdd:serenity-screenplay:${serenityCoreVersion}"
+    implementation "net.serenity-bdd:serenity-screenplay-rest:${serenityCoreVersion}"
+    testImplementation "net.serenity-bdd:serenity-core:${serenityCoreVersion}"
+    testImplementation "net.serenity-bdd:serenity-rest-assured:${serenityCoreVersion}"
+    testImplementation "net.serenity-bdd:serenity-junit:${serenityCoreVersion}"
+    testImplementation "net.serenity-bdd:serenity-spring:${serenityCoreVersion}"
+    implementation "net.serenity-bdd:serenity-cucumber:${serenityCucumberVersion}"
+    testCompileOnly 'org.projectlombok:lombok:1.18.24'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
+
+}
+
+sourceCompatibility = '11.0'
+targetCompatibility = '11.0'
+configurations {
+    cucumberRuntime {
+        extendsFrom testImplementation
+    }
 }
 
 test {
-    useJUnitPlatform()
-    testLogging.showStandardStreams = true
     systemProperties System.getProperties()
+    testLogging.showStandardStreams = true
+    systemProperty "cucumber.filter.tags", System.getProperty("cucumber.filter.tags")
 }
-
-gradle.startParameter.continueOnFailure = true
-
 serenity {
     reports = ["single-page-html"]
-
-    // // Specify the root package of any JUnit acceptance tests
-    testRoot="starter"
 }
-
-test.finalizedBy(aggregate)
